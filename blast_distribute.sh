@@ -5,7 +5,7 @@
 
 user=`whoami`
 my_home=`echo $HOME`
-
+blastprogram="blastn"
 echo "" >"logfile"
 
 date >>"logfile"
@@ -170,35 +170,9 @@ counter=0;
 NOW=$(date)
 echo "Starting time is: $NOW" | tee -a "logfile"
 
-read -e -p "\n Enter name of user , for which you are runnign this script :" user1
-
-echo -e  "User name , for which it is beaing searched is : $user1" | tee -a "logfile"
-
-echo -e "\nInitialising blast search parameters \n" 
-
-read -e -p "Enter which program to use, For e.g. blastx, blastn etc: " blastprogram 
-
-echo -e  "\nYou selected $blastprogram program \n" | tee -a "logfile"
-
-read -e -p "Enter no. of threads, Caution: Do not exceed 16 as each node contains only 16 cores: " noofthreads 
-
-echo -e "\nYou selected $noofthreads threads \n" | tee -a "logfile"
-
-read -e -p "Enter output format, For e.g. 0 or 1 etc: " outfmt  
-
-echo -e "\nYou selected format as $outfmt\n" | tee -a "logfile"
-
 read -e -p "Enter database to search, For e.g. nr etc: " db
 
 echo -e "\nYou entered $db database\n" | tee -a "logfile"
-
-read -e -p "Enter expect value:" evalue
-
-echo -e "\nYou entered expect value as: $evalue" | tee -a "logfile"
-
-read -e -p "Enter no. of aligned sequences to keep: " maxtrgtseqs
-
-echo -e "\nYou have selected $maxtrgtseqs as no. of aligned sequences\n" | tee -a "logfile"
 
 
 read -e -p "Enter any additional parameters for blast search in given format
@@ -240,7 +214,7 @@ echo " WILL SSH COMPUTE NODE: $counter"
 
 #ssh -n -f compute-0-$counter "sh -c '/opt/ncbi-blast-2.2.29/bin/$blastprogram -task blastn  -query $current_directory/$filename-$timestamp-temp-files/$filecounter.fsa -db  SRR2952625.fasta -num_threads $noofthreads -evalue $evalue -outfmt \""6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qcovs qcovhsp qlen slen"\" -max_target_seqs $maxtrgtseqs -out $current_directory/$filename-out-$timestamp-$counter.out'"
 
-ssh -n -f compute-0-$counter "sh -c '/opt/ncbi-blast-2.2.29/bin/$blastprogram -task blastn -query $current_directory/$filename-$timestamp-temp-files/$filecounter.fsa -db SRR2952625.fasta -num_threads $noofthreads -evalue $evalue -outfmt  \"6  qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qcovs qcovhsp qlen slen\"  -max_target_seqs  $maxtrgtseqs -out $current_directory/$filename-out-$timestamp-$counter.out'" 
+ssh -n -f compute-0-$counter "sh -c '/opt/ncbi-blast-2.2.29/bin/blastn -task blastn -query $current_directory/$filename-$timestamp-temp-files/$filecounter.fsa -db SRR2952625.fasta -num_threads 16 -evalue 10 -outfmt  \"6  qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qcovs qcovhsp qlen slen\"  -max_target_seqs  2000000 -out $current_directory/$filename-out-$timestamp-$counter.out'" 
 
 echo "excecute successfully"
 
@@ -325,7 +299,7 @@ echo -e "\n#####################################"
 echo -e "File processing complete. Cleaning temporary files"
 echo -e "#######################################"
 
-#rm *.out
+rm *.out
 
 fi
 
